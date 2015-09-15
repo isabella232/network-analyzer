@@ -26,6 +26,35 @@ package de.mpg.mpi_inf.bioinf.netanalyzer.ui;
  * #L%
  */
 
+import java.awt.Component;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+
+import org.cytoscape.application.swing.CySwingApplication;
+import org.cytoscape.application.swing.CytoPanel;
+import org.cytoscape.application.swing.CytoPanelName;
+import org.cytoscape.application.swing.CytoPanelState;
+import org.cytoscape.application.swing.events.CytoPanelStateChangedEvent;
+import org.cytoscape.application.swing.events.CytoPanelStateChangedListener;
+import org.cytoscape.model.CyNetwork;
+import org.cytoscape.util.swing.LookAndFeelUtil;
+import org.cytoscape.view.model.CyNetworkViewManager;
+import org.cytoscape.view.vizmap.VisualMappingManager;
+
 import de.mpg.mpi_inf.bioinf.netanalyzer.CyNetworkUtils;
 import de.mpg.mpi_inf.bioinf.netanalyzer.InnerException;
 import de.mpg.mpi_inf.bioinf.netanalyzer.NetworkAnalyzer;
@@ -38,23 +67,6 @@ import de.mpg.mpi_inf.bioinf.netanalyzer.data.io.SettingsSerializer;
 import de.mpg.mpi_inf.bioinf.netanalyzer.data.io.StatsSerializer;
 import de.mpg.mpi_inf.bioinf.netanalyzer.data.settings.PluginSettings;
 import de.mpg.mpi_inf.bioinf.netanalyzer.dec.Decorator;
-import org.cytoscape.application.swing.CySwingApplication;
-import org.cytoscape.application.swing.CytoPanel;
-import org.cytoscape.application.swing.CytoPanelName;
-import org.cytoscape.application.swing.CytoPanelState;
-import org.cytoscape.application.swing.events.CytoPanelStateChangedEvent;
-import org.cytoscape.application.swing.events.CytoPanelStateChangedListener;
-import org.cytoscape.model.CyNetwork;
-import org.cytoscape.view.model.CyNetworkViewManager;
-import org.cytoscape.view.vizmap.VisualMappingManager;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Constructor;
 
 /**
  * Dialog presenting results of network analysis.
@@ -79,7 +91,7 @@ public class AnalysisResultPanel extends JPanel implements ActionListener, CytoP
 		netstatsDialog.addChoosableFileFilter(SupportedExtensions.netStatsFilter);
 	}
 
-	private final Window aOwner;
+	private final Window owner;
 
 	private CySwingApplication swingApplication;
 	
@@ -92,7 +104,7 @@ public class AnalysisResultPanel extends JPanel implements ActionListener, CytoP
 	 * subsequent calls to <code>pack</code> or <code>setLocation(...)</code> are necessary.
 	 * </p>
 	 * 
-	 * @param aOwner
+	 * @param owner
 	 *            The <code>Frame</code> from which this dialog is displayed.
 	 * @param aStats
 	 *            Network statistics to be visualized.
@@ -100,9 +112,16 @@ public class AnalysisResultPanel extends JPanel implements ActionListener, CytoP
 	 *            Analyzer class that performed the topological analysis. Set this to <code>null</code> if the
 	 *            results were loaded from a file rather than just computed.
 	 */
-	public AnalysisResultPanel(final CySwingApplication swingApplication, Window aOwner, final ResultPanelFactory panelFactory, NetworkStats aStats, NetworkAnalyzer aAnalyzer,
-			final CyNetworkViewManager viewManager, final VisualStyleBuilder vsBuilder, final VisualMappingManager vmm) {
-		this.aOwner = aOwner;
+	public AnalysisResultPanel(
+			final CySwingApplication swingApplication,
+			final Window owner,
+			final ResultPanelFactory panelFactory,
+			final NetworkStats aStats,
+			final NetworkAnalyzer aAnalyzer,
+			final CyNetworkViewManager viewManager,
+			final VisualStyleBuilder vsBuilder,
+			final VisualMappingManager vmm) {
+		this.owner = owner;
 		this.viewManager = viewManager;
 		this.vmm = vmm;
 		this.vsBuilder = vsBuilder;
@@ -118,11 +137,10 @@ public class AnalysisResultPanel extends JPanel implements ActionListener, CytoP
 		} else {
 			saved = true;
 		}
+		
 		initControls(paramMapping);
 		resultPanel = panelFactory.registerPanel(this, "Network Statistics of " + stats.getTitle());
 
-
-		
 		final CytoPanel cytoPanel = swingApplication.getCytoPanel(CytoPanelName.EAST);
 		oldState = cytoPanel.getState();
 		
@@ -143,7 +161,6 @@ public class AnalysisResultPanel extends JPanel implements ActionListener, CytoP
 			JDialog dialog = (JDialog) thisPanel.getTopLevelAncestor();
 			dialog.setSize(DEFAULT_WIDTH,DEFAULT_HEIGHT);
 		}
-
 	}
 
 	@Override
@@ -155,7 +172,6 @@ public class AnalysisResultPanel extends JPanel implements ActionListener, CytoP
 			visualizeParameter();
 		}
 	}
-
 
 	public void panelClosing() {
 		if (!saved) {
@@ -180,8 +196,6 @@ public class AnalysisResultPanel extends JPanel implements ActionListener, CytoP
 //		dispose();
 	}
 
-	
-
 	/**
 	 * Creates and lays out the controls inside this dialog.
 	 * <p>
@@ -197,7 +211,7 @@ public class AnalysisResultPanel extends JPanel implements ActionListener, CytoP
 
 		final JComponent simpleStatsPanel = new SimpleStatsPanel(stats);
 		if (useExpandable) {
-			simpleStatsPanel.setBorder(BorderFactory.createTitledBorder(Messages.DI_SIMPLEPARAMS));
+			simpleStatsPanel.setBorder(LookAndFeelUtil.createTitledBorder(Messages.DI_SIMPLEPARAMS));
 			this.add(simpleStatsPanel);
 		} else {
 			this.add(tabs);
@@ -216,9 +230,9 @@ public class AnalysisResultPanel extends JPanel implements ActionListener, CytoP
 				ComplexParamVisualizer v = (ComplexParamVisualizer) con.newInstance(conParams);
 				final Decorator[] decs = Decorators.get(id);
 				if (useExpandable) {
-					this.add(new ChartExpandablePanel(this, id, v, (i == 0), decs));
+					this.add(new ChartExpandablePanel(owner, id, v, (i == 0), decs));
 				} else {
-					tabs.addTab(v.getTitle(), new ChartDisplayPanel(this, id, v, decs));
+					tabs.addTab(v.getTitle(), new ChartDisplayPanel(owner, id, v, decs));
 				}
 			} catch (Exception ex) {
 				throw new InnerException(ex);
@@ -226,6 +240,7 @@ public class AnalysisResultPanel extends JPanel implements ActionListener, CytoP
 		}
 
 		this.add(Box.createVerticalStrut(Utils.BORDER_SIZE));
+		
 		saveButton = new JButton(Messages.DI_SAVESTATISTICS);
 		saveButton.addActionListener(this);
 		visualizeButton = new JButton(Messages.DI_VISUALIZEPARAMETER);
@@ -235,25 +250,20 @@ public class AnalysisResultPanel extends JPanel implements ActionListener, CytoP
 		
 		closeButton = new JButton("Close Tab");
 		closeButton.addActionListener(new ActionListener() {
-			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				panelClosing();
 			}
 		});
 		
-		JPanel buttonPane = new JPanel(new FlowLayout(FlowLayout.CENTER, Utils.BORDER_SIZE, 0));
-		Utils.equalizeSize(saveButton, visualizeButton);
-		buttonPane.add(saveButton);
-		buttonPane.add(Box.createHorizontalStrut(Utils.BORDER_SIZE * 2));
-		buttonPane.add(visualizeButton);
-		buttonPane.add(closeButton);
+		// Button panel
+		final JPanel buttonPane = LookAndFeelUtil.createOkCancelPanel(visualizeButton, closeButton, saveButton);
+		
+		if (LookAndFeelUtil.isAquaLAF())
+			buttonPane.setOpaque(false);
+		
 		this.add(buttonPane);
 		this.add(Box.createVerticalStrut(Utils.BORDER_SIZE));
-
-
-		
-		
 	}
 
 	/**
@@ -295,7 +305,7 @@ public class AnalysisResultPanel extends JPanel implements ActionListener, CytoP
 			final String[][] edgeAttr = CyNetworkUtils.getComputedEdgeAttributes(network);
 			if ((nodeAttr[0].length > 0) || (nodeAttr[1].length > 0) || (edgeAttr[0].length > 0)
 					|| (edgeAttr[1].length > 0)) {
-				final MapParameterDialog d = new MapParameterDialog(aOwner, network, viewManager, vsBuilder, vmm,
+				final MapParameterDialog d = new MapParameterDialog(owner, network, viewManager, vsBuilder, vmm,
 						nodeAttr, edgeAttr);
 				d.setVisible(true);
 				return;
@@ -333,10 +343,6 @@ public class AnalysisResultPanel extends JPanel implements ActionListener, CytoP
 	
 	private JButton closeButton;
 
-
-
-
-
 	private CytoPanelState oldState = null;
 	private static final int DEFAULT_WIDTH = 680;
 	private static final int DEFAULT_HEIGHT = 540;
@@ -348,14 +354,12 @@ public class AnalysisResultPanel extends JPanel implements ActionListener, CytoP
 	 */
 	@Override
 	public void handleEvent(CytoPanelStateChangedEvent e) {
-
 		if( oldState != CytoPanelState.DOCK && e.getNewState() == CytoPanelState.DOCK )
 		{
 			final CytoPanel cytoPanel = swingApplication.getCytoPanel(CytoPanelName.EAST);
 			JPanel thisPanel = (JPanel)cytoPanel.getThisComponent();
 			int x = 5;
 		}
-
 
 		//If the oldState was already FLOAT, or the new state is not FLOAT, no need to do anything.
 		if( oldState == CytoPanelState.FLOAT || e.getNewState() != CytoPanelState.FLOAT )

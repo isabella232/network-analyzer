@@ -160,7 +160,7 @@ public abstract class Messages {
 
 	public static String DT_BATCHRESULTS = "Batch Analysis - Results";
 
-	public static String DT_BATCHSETTINGS = "Batch Analysis - Select Directories";
+	public static String DT_BATCHSETTINGS = "Select Directories";
 
 	public static String DT_CLOSEWARN = "Warning - Unsaved Data";
 
@@ -336,17 +336,17 @@ public abstract class Messages {
 
 	public static String AC_ABOUT = "About NetworkAnalyzer";
 
-	public static String AC_ANALYZE = "Analyze Network";
+	public static String AC_ANALYZE = "Analyze Network...";
 
-	public static String AC_ANALYZE_SUBSET = "Analyze Subset of Nodes";
+	public static String AC_ANALYZE_SUBSET = "Analyze Subset of Nodes...";
 
 	public static String AC_BATCH_ANALYSIS = "Batch Analysis";
 
-	public static String AC_COMPARE = "Compare Two Networks";
+	public static String AC_COMPARE = "Compare Two Networks...";
 
 	public static String AC_CONNCOMP = "Extract Connected Components...";
 
-	public static String AC_LOAD = "Load Network Statistics";
+	public static String AC_LOAD = "Load Network Statistics...";
 
 	/**
 	 * Name of Submenu in Cytoscape's menubar, where network analysis actions are added.
@@ -358,13 +358,13 @@ public abstract class Messages {
 	 */
 	public static String AC_MENU_MODIFICATION = "Subnetwork Creation[2.0]";
 
-	public static String AC_PLOTPARAM = "Plot Parameters";
+	public static String AC_PLOTPARAM = "Plot Parameters...";
 
-	public static String AC_SETTINGS = "NetworkAnalyzer Settings";
+	public static String AC_SETTINGS = "Settings...";
 
-	public static String AC_REMDUPEDGES = "Remove Duplicated Edges";
+	public static String AC_REMDUPEDGES = "Remove Duplicated Edges...";
 
-	public static String AC_REMSELFLOOPS = "Remove Self-Loops";
+	public static String AC_REMSELFLOOPS = "Remove Self-Loops...";
 
 	public static String AC_MAPPARAM = "Generate Style from Statistics...";
 
@@ -378,17 +378,15 @@ public abstract class Messages {
 
 	public static String DI_APPLYVS = "Apply styles to ";
 
-	public static String DI_ATTRIBUTE1 = "Table Column 1";
+	public static String DI_ATTRIBUTE1 = "Table Column 1:";
 
-	public static String DI_ATTRIBUTE2 = "Table Column 2";
+	public static String DI_ATTRIBUTE2 = "Table Column 2:";
 
 	public static String DI_AUTOANALYSIS1 = "Performing automatic analysis of ";
 
 	public static String DI_AUTOANALYSIS2 = " networks.";
 
 	public static String DI_AXES = "Axes";
-
-	public static String DI_BATCHREPORT = " networks were analyzed. The results are shown below.";
 
 	public static String DI_CANCEL = "Cancel";
 
@@ -404,11 +402,9 @@ public abstract class Messages {
 
 	public static String DI_CINTERSECTION = "Compute Intersection";
 
-	public static String DI_CONNCOMP = "List of connected components";
-
 	public static String DI_COMP = "Component";
 
-	public static String DI_CORR = "Correlation = ";
+	public static String DI_CORR = "Correlation:";
 
 	public static String DI_CUNION = "Compute Union";
 
@@ -442,17 +438,17 @@ public abstract class Messages {
 
 	public static String DI_IMAGESIZE = "Image Size";
 
-	public static String DI_INPUTDIR = "Input Directory";
+	public static String DI_INPUTDIR = "Input Directory:";
 
 	public static String DI_INTERPR = "Interpretation";
 
 	public static String DI_INTERPRS = "Network Interpretations";
 
-	public static String DI_INTERPR_ALL = "Apply all possible interpretations.";
+	public static String DI_INTERPR_ALL = "Apply all possible interpretations";
 
-	public static String DI_INTERPR_DIRECTED = "Consider networks as directed.";
+	public static String DI_INTERPR_DIRECTED = "Consider networks as directed";
 
-	public static String DI_INTERPR_UNDIRECTED = "Consider networks as undirected.";
+	public static String DI_INTERPR_UNDIRECTED = "Consider networks as undirected";
 
 	public static String DI_LOWTOBRIGHT = "Low values to bright colors";
 
@@ -462,35 +458,35 @@ public abstract class Messages {
 
 	public static String DI_LOWTOSMALL = "Low values to small sizes";
 
-	public static String DI_MAPEDGECOLOR = "Map edge color to:";
+	public static String DI_MAPEDGECOLOR = "Map Edge Color to:";
 
-	public static String DI_MAPEDGESIZE = "Map edge size to:";
+	public static String DI_MAPEDGESIZE = "Map Edge Size to:";
 
-	public static String DI_MAPNODECOLOR = "Map node color to:";
+	public static String DI_MAPNODECOLOR = "Map Node Color to:";
 
-	public static String DI_MAPNODESIZE = "Map node size to:";
+	public static String DI_MAPNODESIZE = "Map Node Size to:";
 
-	public static String DI_MAPTYPE = "Mapping type:";
+	public static String DI_MAPTYPE = "Mapping Type:";
 
 	public static String DI_NETFILE = "Network";
 
 	public static String DI_NETSTATSFILE = "Network Statistics File";
 
-	public static String DI_NODEATTR_SAVE = "<html><i>Node parameters stored as node table data will be written to tab-delimited files. You can disable<br />"
-			+ "this option in the NetworkAnalyzer Settings dialog.</i></html>";
+	public static String DI_NODEATTR_SAVE = "<html><i>Node parameters stored as node table data will be written to tab-delimited files.<br />"
+			+ "You can disable this option in the NetworkAnalyzer Settings dialog.</i></html>";
 
-	public static String DI_NODEATTR_SAVENOT = "<html><i>Node parameters are not stored as node table data and will not be saved to files. You can enable<br />"
-			+ "this option in the NetworkAnalyzer Settings dialog.</i></html>";
+	public static String DI_NODEATTR_SAVENOT = "<html><i>Node parameters are not stored as node table data and will not be saved to files.<br />"
+			+ "You can enable this option in the NetworkAnalyzer Settings dialog.</i></html>";
 
 	public static String DI_OK = "OK";
 
-	public static String DI_OUTPUTDIR = "Output Directory";
+	public static String DI_OUTPUTDIR = "Output Directory:";
 
 	public static String DI_PIXELS = "pixels";
 
 	public static String DI_PLOT1 = "Plot node table data of ";
 
-	public static String DI_PLOT2 = " against each other.";
+	public static String DI_PLOT2 = " against each other";
 
 	public static String DI_REMDUPEDGES = "Remove duplicated edges from the following networks:";
 
@@ -506,7 +502,7 @@ public abstract class Messages {
 
 	public static String DI_RESULTS = "Show Results";
 
-	public static String DI_RSQUARED = "R-squared = ";
+	public static String DI_RSQUARED = "R-squared:";
 
 	public static String DI_SAVE = "Save";
 
@@ -530,7 +526,7 @@ public abstract class Messages {
 
 	public static String DI_SIMPLEPARAMS = "Simple Parameters";
 
-	public static String DI_STARTANALYSIS = "Start Analysis >";
+	public static String DI_STARTANALYSIS = "Start Analysis";
 
 	public static String DI_UNDEF = "Undefined";
 
@@ -584,25 +580,25 @@ public abstract class Messages {
 
 	public static final String SET_PREFIX = "SET_";
 
-	public static String SET_BARCOLOR = "Color of bars";
+	public static String SET_BARCOLOR = "Color of Bars:";
 
-	public static String SET_BACKGROUNDCOLOR = "Background color for parameter visualization";
+	public static String SET_BACKGROUNDCOLOR = "Background Color for Parameter Visualization:";
 
-	public static String SET_BGCOLOR = "Background color";
+	public static String SET_BGCOLOR = "Background Color:";
 
-	public static String SET_BRIGHTCOLOR = "Bright color to map parameters";
+	public static String SET_BRIGHTCOLOR = "Bright color to map parameters:";
 
 	public static String SET_COLORBUTTON = "Click to Change";
 
-	public static String SET_DARKCOLOR = "Dark color to map parameters";
+	public static String SET_DARKCOLOR = "Dark color to map parameters:";
 
-	public static String SET_DOMAINAXISLABEL = "Label of category axis";
+	public static String SET_DOMAINAXISLABEL = "Label of Category Axis:";
 
 	public static String SET_EXPANDABLE = "Use expandable dialog interface for the display of network statistics";
 
-	public static String SET_GRIDLINESCOLOR = "Color of gridlines";
+	public static String SET_GRIDLINESCOLOR = "Color of Gridlines:";
 
-	public static String SET_HELPURLSTRING = "Location of the help documents";
+	public static String SET_HELPURLSTRING = "Location of the help documents:";
 
 	public static String SET_HORIZONTALGRIDLINES = "Show horizontal gridlines";
 
@@ -610,15 +606,15 @@ public abstract class Messages {
 
 	public static String SET_LOGARITHMICRANGEAXIS = "Set range (vertical) axis to logarithmic";
 
-	public static String SET_MIDDLECOLOR = "Middle color to map parameters";
+	public static String SET_MIDDLECOLOR = "Middle color to map parameters:";
 
 	public static String SET_OUTLINE = "Show outline of bars";
 
-	public static String SET_POINTCOLOR = "Color of points";
+	public static String SET_POINTCOLOR = "Color of Points:";
 
-	public static String SET_POINTSHAPE = "Shape of points";
+	public static String SET_POINTSHAPE = "Shape of Points:";
 
-	public static String SET_RANGEAXISLABEL = "Label of value axis";
+	public static String SET_RANGEAXISLABEL = "Label of Value Axis:";
 
 	public static String SET_SCIRCLE = "circle";
 
@@ -632,7 +628,7 @@ public abstract class Messages {
 
 	public static String SET_SSQUARE = "square";
 
-	public static String SET_TITLE = "Chart title";
+	public static String SET_TITLE = "Chart Title:";
 
 	public static String SET_USEEDGEATTRIBUTES = "Store edge parameters in edge table";
 

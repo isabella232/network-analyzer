@@ -26,14 +26,15 @@ package de.mpg.mpi_inf.bioinf.netanalyzer.ui;
  * #L%
  */
 
-import java.awt.Component;
-import java.awt.Dialog;
+import java.awt.Dialog.ModalityType;
+import java.awt.Window;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.JComponent;
 import javax.swing.JTabbedPane;
 
+import org.cytoscape.util.swing.LookAndFeelUtil;
 import org.jfree.chart.JFreeChart;
 
 import de.mpg.mpi_inf.bioinf.netanalyzer.InnerException;
@@ -108,40 +109,44 @@ public abstract class ComplexParamVisualizer {
 	 * visualizer by calling the {@link #updateControl(JFreeChart)} method for each of them.
 	 * </p>
 	 * 
-	 * @param aOwner The <code>Dialog</code> from which the settings dialog is displayed.
+	 * @param owner The <code>Dialog</code> from which the settings dialog is displayed.
 	 * @return The status as returned by the settings dialog.
 	 * @see SettingsDialog#STATUS_CANCEL
 	 * @see SettingsDialog#STATUS_DEFAULT
 	 * @see SettingsDialog#STATUS_OK
 	 */
-	public int showSettingsDialog(Dialog aOwner) {
-		SettingsDialog d = new SettingsDialog(aOwner, Messages.DI_CHARTSETTINGS);
-		JComponent dataComp = addSettingsPanels(d.getSettingsPane());
+	public int showSettingsDialog(Window owner) {
+		final SettingsDialog d = new SettingsDialog(owner, Messages.DI_CHARTSETTINGS);
+		final JComponent dataComp = addSettingsPanels(d.getSettingsPane());
 
 		d.pack();
-		d.setLocationRelativeTo(aOwner);
+		d.setModalityType(ModalityType.APPLICATION_MODAL);
+		d.setLocationRelativeTo(owner);
 		d.setVisible(true);
 
 		int status = d.getStatus();
+		
 		if (status != SettingsDialog.STATUS_CANCEL) {
 			try {
 				d.update();
 				updateSettings(dataComp);
+				
 				if (status == SettingsDialog.STATUS_DEFAULT) {
 					try {
 						saveDefault();
 					} catch (SecurityException ex) {
-						Utils.showErrorBox(aOwner, Messages.DT_SECERROR, Messages.SM_SECERROR2);
+						Utils.showErrorBox(owner, Messages.DT_SECERROR, Messages.SM_SECERROR2);
 					} catch (Exception ex) {
 						// FileNotFoundException
 						// IOException
-						Utils.showErrorBox(aOwner, Messages.DT_IOERROR, Messages.SM_DEFFAILED);
+						Utils.showErrorBox(owner, Messages.DT_IOERROR, Messages.SM_DEFFAILED);
 					}
 				}
 			} catch (InvocationTargetException ex) {
 				throw new InnerException(ex);
 			}
 		}
+		
 		return status;
 	}
 
@@ -164,7 +169,10 @@ public abstract class ComplexParamVisualizer {
 	 * @param aToolTip Tool-tip of the new tab. Set this to <code>null</code> if the tab title does not a
 	 *        have a tool-tip.
 	 */
-	protected static void addTab(JTabbedPane aPanel, String aTitle, Component aComp, String aToolTip) {
+	protected static void addTab(JTabbedPane aPanel, String aTitle, JComponent aComp, String aToolTip) {
+		if (LookAndFeelUtil.isAquaLAF())
+			aComp.setOpaque(false);
+		
 		aPanel.addTab(aTitle, null, aComp, aToolTip);
 	}
 

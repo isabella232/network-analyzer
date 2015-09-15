@@ -31,6 +31,9 @@ import de.mpg.mpi_inf.bioinf.netanalyzer.data.NetworkInterpretation;
 import de.mpg.mpi_inf.bioinf.netanalyzer.data.NetworkStatus;
 
 import javax.swing.*;
+
+import org.cytoscape.util.swing.LookAndFeelUtil;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -89,23 +92,10 @@ public final class InterpretationDialog extends JDialog implements ActionListene
 		}
 	}
 	
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-	 */
+	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
-		if (source == btnOK) {
-			pressedOK = true;
-			this.setVisible(false);
-			this.dispose();
-		} else if (source == btnCancel) {
-			userChoice = -1;
-			this.setVisible(false);
-			this.dispose();
-		} else if (radOptions != null) {
+		if (radOptions != null) {
 			for (int i = 0; i < radOptions.length; ++i) {
 				if (source == radOptions[i]) {
 					userChoice = i;
@@ -160,6 +150,7 @@ public final class InterpretationDialog extends JDialog implements ActionListene
 	 * @param aStatus
 	 *            Status of the network to be analyzed.
 	 */
+	@SuppressWarnings("serial")
 	private void initControls(NetworkStatus aStatus) {
 		JPanel contentPane = new JPanel(new BorderLayout(0, Utils.BORDER_SIZE));
 		Utils.setStandardBorder(contentPane);
@@ -175,17 +166,34 @@ public final class InterpretationDialog extends JDialog implements ActionListene
 		contentPane.add(interprPanel, BorderLayout.CENTER);
 
 		// Add OK, Cancel and Help buttons
-		JPanel panButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, Utils.BORDER_SIZE, 0));
-		btnOK = Utils.createButton(Messages.DI_OK, null, this);
-		btnCancel = Utils.createButton(Messages.DI_CANCEL, null, this);
+		btnOK = Utils.createButton(new AbstractAction(Messages.DI_OK) {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				pressedOK = true;
+				setVisible(false);
+				dispose();
+			}
+		}, null);
+		btnCancel = Utils.createButton(new AbstractAction(Messages.DI_CANCEL) {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				userChoice = -1;
+				setVisible(false);
+				dispose();
+			}
+		}, null);
+		
 		Utils.equalizeSize(btnOK, btnCancel);
-		panButtons.add(btnOK);
-		panButtons.add(btnCancel);
-		panButtons.add(Box.createHorizontalStrut(Utils.BORDER_SIZE * 2));
+		
+		final JPanel panButtons = LookAndFeelUtil.createOkCancelPanel(btnOK, btnCancel);
+		
 		contentPane.add(panButtons, BorderLayout.SOUTH);
 
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		getContentPane().add(contentPane);
+		
+		LookAndFeelUtil.setDefaultOkCancelKeyStrokes(getRootPane(), btnOK.getAction(), btnCancel.getAction());
+		
 		getRootPane().setDefaultButton(btnOK);
 		btnOK.requestFocusInWindow();
 	}
@@ -202,52 +210,60 @@ public final class InterpretationDialog extends JDialog implements ActionListene
 	 * @return Newly created panel containing the images visualizing network interpretations and the
 	 *         controls for choosing one (if multiple are possible).
 	 */
-	@SuppressWarnings("null")
 	private JPanel initInterprPanel(NetworkStatus aStatus) {
 		final NetworkInterpretation[] trs = aStatus.getInterpretations();
-		JPanel panBody = new JPanel(new GridBagLayout());
+		final JPanel panBody = new JPanel(new GridBagLayout());
+		panBody.setBorder(LookAndFeelUtil.createTitledBorder(Messages.DI_INTERPR));
+		
 		ButtonGroup group = null;
+		
 		if (trs.length > 1) {
 			group = new ButtonGroup();
 			radOptions = new JRadioButton[trs.length];
-			panBody.setBorder(BorderFactory.createTitledBorder(Messages.DI_INTERPR));
 		}
-		GridBagConstraints constr = new GridBagConstraints();
-		constr.insets.left = Utils.BORDER_SIZE / 2;
-		constr.insets.right = Utils.BORDER_SIZE / 2;
-		constr.gridy = 0;
-		constr.gridheight = trs.length;
+		
+		final GridBagConstraints c = new GridBagConstraints();
+		c.insets.top = Utils.BORDER_SIZE;
+		c.insets.left = Utils.BORDER_SIZE / 2;
+		c.insets.right = Utils.BORDER_SIZE / 2;
+		c.gridy = 0;
+		c.gridheight = trs.length;
+		c.anchor = GridBagConstraints.CENTER;
 
-		JLabel labImage = new JLabel(aStatus.getIcon());
-		labImage.setBorder(BorderFactory.createEtchedBorder());
-		panBody.add(labImage, constr);
-		constr.gridheight = 1;
+		final JLabel labImage = new JLabel(aStatus.getIcon());
+		labImage.setBorder(BorderFactory.createLineBorder(UIManager.getColor("Separator.foreground")));
+		panBody.add(labImage, c);
+		
+		c.gridheight = 1;
 
-		for (int i = 0; i < trs.length; ++i, ++constr.gridy) {
-			constr.gridx = 1;
-			if (trs.length > 1) {
-				radOptions[i] = new JRadioButton();
-				radOptions[i].addActionListener(this);
-				if (aStatus.getDefaultInterprIndex() == i) {
-					radOptions[i].setSelected(true);
-				}
-				group.add(radOptions[i]);
-				panBody.add(radOptions[i], constr);
-				constr.gridx++;
-			}
+		for (int i = 0; i < trs.length; ++i) {
+			c.gridx = 1;
+			c.anchor = GridBagConstraints.WEST;
+			
 			if (trs[i].getIcon() != null) {
-				panBody.add(new JLabel(arrowRight), constr);
-				constr.gridx++;
-				labImage = new JLabel(trs[i].getIcon());
-				labImage.setBorder(BorderFactory.createEtchedBorder());
-				panBody.add(labImage, constr);
-				constr.gridx++;
+				panBody.add(new JLabel(arrowRight), c);
+				final JLabel labIcon = new JLabel(trs[i].getIcon());
+				labIcon.setBorder(BorderFactory.createLineBorder(UIManager.getColor("Separator.foreground")));
+				
+				c.gridx++;
+				panBody.add(labIcon, c);
+				c.gridx++;
 			}
-
-			constr.fill = GridBagConstraints.BOTH;
-			JLabel labText = new JLabel(trs[i].getMessage());
-			panBody.add(labText, constr);
-			constr.fill = GridBagConstraints.NONE;
+			
+			if (trs.length > 1) {
+				radOptions[i] = new JRadioButton(trs[i].getMessage());
+				radOptions[i].addActionListener(this);
+				
+				if (aStatus.getDefaultInterprIndex() == i)
+					radOptions[i].setSelected(true);
+				
+				group.add(radOptions[i]);
+				panBody.add(radOptions[i], c);
+			} else {
+				panBody.add(new JLabel(trs[i].getMessage()), c);
+			}
+			
+			c.gridy++;
 		}
 
 		return panBody;

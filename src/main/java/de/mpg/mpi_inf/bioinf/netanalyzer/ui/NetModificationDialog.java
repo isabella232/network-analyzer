@@ -26,22 +26,38 @@ package de.mpg.mpi_inf.bioinf.netanalyzer.ui;
  * #L%
  */
 
-import de.mpg.mpi_inf.bioinf.netanalyzer.data.Messages;
+import static javax.swing.GroupLayout.DEFAULT_SIZE;
+import static javax.swing.GroupLayout.PREFERRED_SIZE;
+
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.HeadlessException;
+import java.awt.event.ActionEvent;
+
+import javax.swing.AbstractAction;
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.SwingConstants;
+import javax.swing.event.ListSelectionEvent;
+
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNetworkManager;
+import org.cytoscape.util.swing.LookAndFeelUtil;
 
-import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import de.mpg.mpi_inf.bioinf.netanalyzer.data.Messages;
 
 /**
  * Dialog for selecting networks on which to apply analysis or a basic modification.
  * 
  * @author Yassen Assenov
  */
-public class NetModificationDialog extends NetworkListDialog implements ActionListener {
+public class NetModificationDialog extends NetworkListDialog {
 
 	/**
 	 * Initializes a new instance of <code>NetworkModificationDialog</code> with a modification warning.
@@ -92,30 +108,6 @@ public class NetModificationDialog extends NetworkListDialog implements ActionLi
 		setLocationRelativeTo(aOwner);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-	 */
-	public void actionPerformed(ActionEvent e) {
-		final Object source = e.getSource();
-		if (source == btnCancel) {
-			setVisible(false);
-			dispose();
-		} else if (source == btnOK) {
-			// Store the list of networks selected by the user
-			final int[] indices = listNetNames.getSelectedIndices();
-			final int size = indices.length;
-			selectedNetworks = new CyNetwork[size];
-			for (int i = 0; i < size; ++i) {
-				selectedNetworks[i] = networks.get(indices[i]);
-			}
-
-			setVisible(false);
-			dispose();
-		}
-	}
-
 	/**
 	 * Gets an array of all networks selected by the user.
 	 * 
@@ -126,14 +118,10 @@ public class NetModificationDialog extends NetworkListDialog implements ActionLi
 		return selectedNetworks;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.swing.event.ListSelectionListener#valueChanged(javax.swing.event.ListSelectionEvent)
-	 */
+	@Override
 	public void valueChanged(ListSelectionEvent e) {
 		// Update the enabled status of the "OK" button.
-		btnOK.setEnabled(isNetNameSelected());
+		btnOK.getAction().setEnabled(isNetNameSelected());
 	}
 
 	/**
@@ -155,55 +143,87 @@ public class NetModificationDialog extends NetworkListDialog implements ActionLi
 	 * This method is called upon initialization only.
 	 * </p>
 	 * 
-	 * @param aLabel
+	 * @param title
 	 *            Label to be displayed on top of the network list.
-	 * @param aWarning
+	 * @param showWarning
 	 *            Flag indicating if a modification warning must be displayed. The text of the modification
 	 *            warning is {@link Messages#SM_NETMODIFICATION}.
 	 */
-	protected void initControls(String aLabel, boolean aWarning) {
-		Box contentPane = Box.createVerticalBox();
-		Utils.setStandardBorder(contentPane);
+	@SuppressWarnings("serial")
+	protected void initControls(final String title, final boolean showWarning) {
+		// Labels
+		final JLabel titleLbl = new JLabel(title);
+		
+		final JLabel warningLbl = new JLabel(Messages.SM_NETMODIFICATION, SwingConstants.LEADING);
+		warningLbl.setFont(warningLbl.getFont().deriveFont(LookAndFeelUtil.INFO_FONT_SIZE));
+		warningLbl.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
+		warningLbl.setVisible(showWarning);
 
-		// Add the main message
-		final JPanel panTitle = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-		panTitle.add(new JLabel(aLabel));
-		contentPane.add(panTitle);
-		contentPane.add(Box.createVerticalStrut(Utils.BORDER_SIZE));
-
-		// Add a list of loaded networks to select from
-		final JScrollPane scroller = new JScrollPane(listNetNames);
-		final JPanel panNetList = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-		panNetList.add(scroller);
-		contentPane.add(panNetList);
-		contentPane.add(Box.createVerticalStrut(Utils.BORDER_SIZE));
-
-		final JComponent additional = initAdditionalControls();
-		if (additional != null) {
-			additional.setAlignmentX(0.5f);
-			contentPane.add(additional);
-			contentPane.add(Box.createVerticalStrut(Utils.BORDER_SIZE));
+		// List of loaded networks to select from
+		final JScrollPane networkListScr = new JScrollPane(listNetNames);
+		networkListScr.setMinimumSize(new Dimension(80, 120));
+		
+		JComponent additionalControls = initAdditionalControls();
+		
+		if (additionalControls == null) {
+			additionalControls = new JPanel();
+			additionalControls.setVisible(false);
 		}
+		
+		// OK and Cancel buttons
+		btnOK = Utils.createButton(new AbstractAction(Messages.DI_OK) {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// Store the list of networks selected by the user
+				final int[] indices = listNetNames.getSelectedIndices();
+				final int size = indices.length;
+				selectedNetworks = new CyNetwork[size];
+				for (int i = 0; i < size; ++i) {
+					selectedNetworks[i] = networks.get(indices[i]);
+				}
 
-		// Add OK and Cancel buttons
-		JPanel panButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, Utils.BORDER_SIZE, 0));
-		btnOK = Utils.createButton(Messages.DI_OK, null, this);
-		btnOK.setEnabled(false);
-		btnCancel = Utils.createButton(Messages.DI_CANCEL, null, this);
+				setVisible(false);
+				dispose();
+			}
+		}, null);
+		btnCancel = Utils.createButton(new AbstractAction(Messages.DI_CANCEL) {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				setVisible(false);
+				dispose();
+			}
+		}, null);
+		
 		Utils.equalizeSize(btnOK, btnCancel);
-		panButtons.add(btnOK);
-		panButtons.add(btnCancel);
-		panButtons.add(Box.createHorizontalStrut(Utils.BORDER_SIZE * 2));
-		contentPane.add(panButtons);
+		btnOK.getAction().setEnabled(false);
+		
+		final JPanel buttonPnl = LookAndFeelUtil.createOkCancelPanel(btnOK, btnCancel);
 
-		// Add a warning message
-		if (aWarning) {
-			final JPanel panWarning = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-			panWarning.add(new JLabel(Messages.SM_NETMODIFICATION, SwingConstants.LEADING));
-			contentPane.add(Box.createVerticalStrut(Utils.BORDER_SIZE));
-			contentPane.add(panWarning);
-		}
+		// Layout
+		final JPanel contentPane = new JPanel();
+		final GroupLayout layout = new GroupLayout(contentPane);
+		contentPane.setLayout(layout);
+		layout.setAutoCreateContainerGaps(true);
+		layout.setAutoCreateGaps(true);
+		
+		layout.setHorizontalGroup(layout.createParallelGroup(Alignment.LEADING, true)
+				.addComponent(titleLbl)
+				.addComponent(networkListScr, DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
+				.addComponent(additionalControls)
+				.addComponent(warningLbl)
+				.addComponent(buttonPnl)
+		);
+		layout.setVerticalGroup(layout.createSequentialGroup()
+				.addComponent(titleLbl, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+				.addComponent(networkListScr, DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
+				.addComponent(additionalControls, DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
+				.addComponent(warningLbl, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+				.addComponent(buttonPnl, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+		);
+		
 		setContentPane(contentPane);
+		LookAndFeelUtil.setDefaultOkCancelKeyStrokes(getRootPane(), btnOK.getAction(), btnCancel.getAction());
+		getRootPane().setDefaultButton(btnOK);
 	}
 
 	/**

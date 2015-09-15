@@ -48,6 +48,7 @@ import de.mpg.mpi_inf.bioinf.netanalyzer.ui.Utils;
  */
 public class RemDupEdgesAction extends NetAnalyzerAction {
 
+	private static final long serialVersionUID = 3389808503156586737L;
 	private static final Logger logger = LoggerFactory.getLogger(RemDupEdgesAction.class);
 
 	private final CyNetworkManager netMgr;
@@ -55,24 +56,18 @@ public class RemDupEdgesAction extends NetAnalyzerAction {
 	/**
 	 * Initializes a new instance of <code>ReDupEdgesAction</code>.
 	 */
-	public RemDupEdgesAction(CyApplicationManager appMgr,CySwingApplication swingApp,CyNetworkManager netMgr) {
+	public RemDupEdgesAction(CyApplicationManager appMgr, CySwingApplication swingApp, CyNetworkManager netMgr) {
 		super(Messages.AC_REMDUPEDGES,appMgr,swingApp);
 		setPreferredMenu("Edit");
 		setMenuGravity(4.1f);
 		this.netMgr = netMgr;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see cytoscape.util.CytoscapeAction#actionPerformed(java.awt.event.ActionEvent)
-	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		try {
-			if (!selectNetwork()) {
+			if (!selectNetwork())
 				return;
-			}
 
 			final Frame desktop = swingApp.getJFrame();
 			final ClearMultEdgesDialog d = new ClearMultEdgesDialog(desktop,netMgr);
@@ -82,35 +77,34 @@ public class RemDupEdgesAction extends NetAnalyzerAction {
 			final CyNetwork[] networks = d.getSelectedNetworks();
 			final boolean ignoreDir = d.getIgnoreDirection();
 			final boolean createEdgeAttr = d.getCreateEdgeAttr();
+			
 			if (networks != null) {
 				final int size = networks.length;
 				int[] removedEdges = new int[size];
 				String[] networkNames = new String[size];
+				
 				for (int i = 0; i < size; ++i) {
 					final CyNetwork currentNet = networks[i];
-					AttributeSetup.createEdgeDuplicateAttribute(currentNet.getDefaultEdgeTable());
+					
+					if (createEdgeAttr)
+						AttributeSetup.createEdgeDuplicateAttribute(currentNet.getDefaultEdgeTable());
+					
 					networkNames[i] = currentNet.getRow(currentNet).get(CyNetwork.NAME, String.class);
 					removedEdges[i] = CyNetworkUtils.removeDuplEdges(currentNet, ignoreDir, createEdgeAttr);
 				}
 
-				final String r = Messages
-						.constructReport(removedEdges, Messages.SM_REMDUPEDGES, networkNames);
+				final String r = Messages.constructReport(removedEdges, Messages.SM_REMDUPEDGES, networkNames);
 				Utils.showInfoBox(desktop, Messages.DT_REMDUPEDGES, r);
 				
 				// Update view to reflect the change in view model.
 				final CyNetworkView curView = applicationManager.getCurrentNetworkView();
-				if(curView != null) {
+				
+				if (curView != null)
 					curView.updateView();
-				}
 			}
 		} catch (InnerException ex) {
 			// NetworkAnalyzer internal error
 			logger.error(Messages.SM_LOGERROR, ex);
 		}
 	}
-
-	/**
-	 * Unique ID for this version of this class. It is used in serialization.
-	 */
-	private static final long serialVersionUID = 3389808503156586737L;
 }

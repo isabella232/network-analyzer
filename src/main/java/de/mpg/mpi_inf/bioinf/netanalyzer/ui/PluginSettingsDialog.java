@@ -26,27 +26,43 @@ package de.mpg.mpi_inf.bioinf.netanalyzer.ui;
  * #L%
  */
 
-import de.mpg.mpi_inf.bioinf.netanalyzer.data.Messages;
-import de.mpg.mpi_inf.bioinf.netanalyzer.data.io.SettingsSerializer;
+import java.awt.Dialog;
+import java.awt.Frame;
+import java.awt.event.ActionEvent;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+
+import javax.swing.AbstractAction;
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JPanel;
+import javax.swing.WindowConstants;
+
+import org.cytoscape.util.swing.LookAndFeelUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
+import de.mpg.mpi_inf.bioinf.netanalyzer.data.Messages;
+import de.mpg.mpi_inf.bioinf.netanalyzer.data.io.SettingsSerializer;
 
 /**
  * Dialog for viewing and editing plugin's settings.
  * 
  * @author Yassen Assenov
  */
-public class PluginSettingsDialog extends JDialog implements ActionListener {
+public class PluginSettingsDialog extends JDialog {
 
+	private static final long serialVersionUID = 7118008694414543131L;
 	private static final Logger logger = LoggerFactory.getLogger(PluginSettingsDialog.class);
 
+	private JButton btnCancel;
+	private JButton btnOK;
+
+	/** Panel that contains the controls for adjusting the plugin's settings. */
+	private SettingsPanel panSettings;
+	
 	/**
 	 * Initializes a new instance of <code>PluginSettingsDialog</code>.
 	 * <p>
@@ -57,10 +73,9 @@ public class PluginSettingsDialog extends JDialog implements ActionListener {
 	 * </p>
 	 * 
 	 * @param aOwner The <code>Dialog</code> from which this dialog is displayed.
-	 * 
 	 */
 	public PluginSettingsDialog(Dialog aOwner) {
-		super(aOwner, Messages.DT_SETTINGS, true);
+		super(aOwner, Messages.DT_SETTINGS);
 		initControls();
 		pack();
 		setLocationRelativeTo(aOwner);
@@ -70,45 +85,13 @@ public class PluginSettingsDialog extends JDialog implements ActionListener {
 	 * Initializes a new instance of <code>PluginSettingsDialog</code>.
 	 * 
 	 * @param aOwner The <code>Dialog</code> from which this dialog is displayed.
-	 * 
 	 */
 	public PluginSettingsDialog(Frame aOwner) {
-		super(aOwner, Messages.DT_SETTINGS, true);
+		super(aOwner, Messages.DT_SETTINGS);
 		initControls();
 		pack();
 		setLocationRelativeTo(aOwner);
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-	 */
-	public void actionPerformed(ActionEvent e) {
-		Object source = e.getSource();
-		if (source == btnOK) {
-			try {
-				panSettings.updateData();
-				SettingsSerializer.save();
-			} catch (InvocationTargetException ex) {
-				// NetworkAnalyzer internal error
-				logger.error(Messages.SM_LOGERROR, ex);
-			} catch (IOException ex) {
-				Utils.showErrorBox(this,Messages.DT_IOERROR, Messages.SM_DEFFAILED);
-			} finally {
-				this.setVisible(false);
-				this.dispose();
-			}
-		} else if (source == btnCancel) {
-			this.setVisible(false);
-			this.dispose();
-		}
-	}
-
-	/**
-	 * Unique ID for this version of this class. It is used in serialization.
-	 */
-	private static final long serialVersionUID = 7118008694414543131L;
 
 	/**
 	 * Creates and lays out the controls inside this dialog.
@@ -116,41 +99,59 @@ public class PluginSettingsDialog extends JDialog implements ActionListener {
 	 * This method is called upon initialization only.
 	 * </p>
 	 */
+	@SuppressWarnings("serial")
 	private void initControls() {
-		JPanel contentPane = new JPanel(new BorderLayout(0, Utils.BORDER_SIZE));
-		Utils.setStandardBorder(contentPane);
-
 		panSettings = new SettingsPanel(SettingsSerializer.getPluginSettings());
-		contentPane.add(panSettings, BorderLayout.CENTER);
-
+		
 		// Add OK, Cancel and Help buttons
-		JPanel panButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, Utils.BORDER_SIZE, 0));
-		btnOK = Utils.createButton(Messages.DI_OK, null, this);
-		btnCancel = Utils.createButton(Messages.DI_CANCEL, null, this);
+		btnOK = Utils.createButton(new AbstractAction(Messages.DI_OK) {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					panSettings.updateData();
+					SettingsSerializer.save();
+				} catch (InvocationTargetException ex) {
+					// NetworkAnalyzer internal error
+					logger.error(Messages.SM_LOGERROR, ex);
+				} catch (IOException ex) {
+					Utils.showErrorBox(PluginSettingsDialog.this, Messages.DT_IOERROR, Messages.SM_DEFFAILED);
+				} finally {
+					setVisible(false);
+					dispose();
+				}
+			}
+		}, null);
+		btnCancel = Utils.createButton(new AbstractAction(Messages.DI_CANCEL) {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				setVisible(false);
+				dispose();
+			}
+		}, null);
+		
 		Utils.equalizeSize(btnOK, btnCancel);
-		panButtons.add(btnOK);
-		panButtons.add(btnCancel);
-		panButtons.add(Box.createHorizontalStrut(Utils.BORDER_SIZE * 2));
-		contentPane.add(panButtons, BorderLayout.SOUTH);
-
+		final JPanel panButtons = LookAndFeelUtil.createOkCancelPanel(btnOK, btnCancel);
+		
+		final JPanel contentPane = new JPanel();
+		final GroupLayout layout = new GroupLayout(contentPane);
+		contentPane.setLayout(layout);
+		layout.setAutoCreateContainerGaps(true);
+		layout.setAutoCreateGaps(true);
+		
+		layout.setHorizontalGroup(layout.createParallelGroup(Alignment.CENTER, true)
+				.addComponent(panSettings)
+				.addComponent(panButtons)
+		);
+		layout.setVerticalGroup(layout.createSequentialGroup()
+				.addComponent(panSettings)
+				.addComponent(panButtons)
+		);
+		
+		setContentPane(contentPane);
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-		getContentPane().add(contentPane);
+		
+		LookAndFeelUtil.setDefaultOkCancelKeyStrokes(getRootPane(), btnOK.getAction(), btnCancel.getAction());
 		getRootPane().setDefaultButton(btnOK);
 		btnOK.requestFocusInWindow();
 	}
-
-	/**
-	 * &quot;Cancel&quot; button.
-	 */
-	private JButton btnCancel;
-
-	/**
-	 * &quot;OK&quot; button.
-	 */
-	private JButton btnOK;
-
-	/**
-	 * Panel that contains the controls for adjusting the plugin's settings.
-	 */
-	private SettingsPanel panSettings;
 }
