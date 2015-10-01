@@ -11,7 +11,7 @@
 		<!-- Maven Plugin Settings -->
 		<junit.version>4.12</junit.version>
 		<maven-compiler-plugin.version>3.3</maven-compiler-plugin.version>
-		<maven-bundle-plugin.version>2.5.4</maven-bundle-plugin.version>
+		<maven-bundle-plugin.version>2.4.0</maven-bundle-plugin.version>
 	</properties>
 
 	<groupId>org.cytoscape</groupId>
@@ -107,6 +107,10 @@
 						<Export-Package>!${bundle.namespace}.*</Export-Package>
 						<Private-Package>${bundle.namespace}.*</Private-Package>
 						<Bundle-Activator>${bundle.namespace}.CyActivator</Bundle-Activator>
+						
+						<Embed-Dependency>*;scope=!provided|test;groupId=!org.cytoscape</Embed-Dependency>
+						<Embed-Transitive>true</Embed-Transitive>
+						<Import-Package>*;resolution:=optional</Import-Package>
 					</instructions>
 				</configuration>
 			</plugin>
@@ -120,12 +124,15 @@
 			<version>1.5.2</version>
 			<scope>provided</scope>
 		</dependency>
+		
 		<dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.core</artifactId>
 			<version>${osgi.api.version}</version>
 			<scope>provided</scope>
 		</dependency>
+		
+		<!-- Cytoscape API dependencies -->
 		<dependency>
 			<groupId>org.cytoscape</groupId>
 			<artifactId>model-api</artifactId>
@@ -175,6 +182,7 @@
 			<scope>provided</scope>
 		</dependency>
 
+		<!-- 3rd party JARs -->
 		<dependency>
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-core</artifactId>
@@ -195,20 +203,25 @@
 			<artifactId>jdom</artifactId>
 			<version>1.1</version>
 		</dependency>
+		
+		<!-- 3rd party JARs (provided) -->
 		<dependency>
 			<groupId>cytoscape-temp</groupId>
 			<artifactId>l2fprod-common-sheet</artifactId>
 			<version>7.3</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>cytoscape-temp</groupId>
 			<artifactId>org.swinglabs.swingx</artifactId>
 			<version>1.6.1</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>cytoscape-temp</groupId>
 			<artifactId>l2fprod-common-shared</artifactId>
 			<version>7.3</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.freehep</groupId>
@@ -229,6 +242,7 @@
 			<scope>provided</scope>
 		</dependency>
 
+		<!-- Testing -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
