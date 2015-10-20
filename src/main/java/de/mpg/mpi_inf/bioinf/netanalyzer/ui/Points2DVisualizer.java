@@ -50,6 +50,11 @@ import de.mpg.mpi_inf.bioinf.netanalyzer.ui.charts.JFreeChartConn;
  */
 public class Points2DVisualizer extends ComplexParamVisualizer {
 
+	/** Point set instance to be visualized. */
+	private Points2D param;
+	/** Visual settings for the point set instance. */
+	private Points2DGroup settings;
+	
 	/**
 	 * Initializes a new instance of <code>Points2DVisualizer</code>.
 	 * 
@@ -62,11 +67,6 @@ public class Points2DVisualizer extends ComplexParamVisualizer {
 		general = settings.general;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.mpg.mpi_inf.bioinf.netanalyzer.ui.ComplexParamVisualizer#getComplexParam()
-	 */
 	@Override
 	public ComplexParam getComplexParam() {
 		return param;
@@ -102,22 +102,12 @@ public class Points2DVisualizer extends ComplexParamVisualizer {
 		param = (Points2D) aParam;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.mpg.mpi_inf.bioinf.netanalyzer.ui.ComplexParamVisualizer#createControl()
-	 */
 	@Override
 	public JFreeChart createControl() {
 		JFreeChart chart = JFreeChartConn.createScatter(param, settings);
 		return chart;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.mpg.mpi_inf.bioinf.netanalyzer.ui.ComplexParamVisualizer#updateControl(org.jfree.chart.JFreeChart)
-	 */
 	@Override
 	public JFreeChart updateControl(JFreeChart aControl) {
 		JFreeChartConn.updateGeneral(aControl, general);
@@ -126,11 +116,6 @@ public class Points2DVisualizer extends ComplexParamVisualizer {
 		return aControl;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.mpg.mpi_inf.bioinf.netanalyzer.ui.ComplexParamVisualizer#addSettingsPanels(javax.swing.JTabbedPane)
-	 */
 	@Override
 	protected JComponent addSettingsPanels(JTabbedPane aPanel) {
 		addTab(aPanel, Messages.DI_GENERAL, new SettingsPanel(general), Messages.TT_GENSETTINGS);
@@ -140,23 +125,8 @@ public class Points2DVisualizer extends ComplexParamVisualizer {
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.mpg.mpi_inf.bioinf.netanalyzer.ui.ComplexParamVisualizer#saveDefault()
-	 */
 	@Override
 	protected void saveDefault() throws IOException {
 		SettingsSerializer.setDefault(settings);
 	}
-
-	/**
-	 * Point set instance to be visualized.
-	 */
-	private Points2D param;
-
-	/**
-	 * Visual settings for the point set instance.
-	 */
-	private Points2DGroup settings;
 }

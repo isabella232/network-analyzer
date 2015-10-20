@@ -26,17 +26,22 @@ package de.mpg.mpi_inf.bioinf.netanalyzer.ui.filter;
  * #L%
  */
 
-import java.awt.Dialog;
-import java.awt.Dimension;
+import static javax.swing.GroupLayout.DEFAULT_SIZE;
+import static javax.swing.GroupLayout.PREFERRED_SIZE;
+import static javax.swing.GroupLayout.Alignment.CENTER;
+import static javax.swing.GroupLayout.Alignment.LEADING;
+import static javax.swing.GroupLayout.Alignment.TRAILING;
+
+import java.awt.Window;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Locale;
 
+import javax.swing.GroupLayout;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
-import javax.swing.SpringLayout;
 import javax.swing.SwingConstants;
 
 import de.mpg.mpi_inf.bioinf.netanalyzer.InnerException;
@@ -44,41 +49,53 @@ import de.mpg.mpi_inf.bioinf.netanalyzer.data.Points2D;
 import de.mpg.mpi_inf.bioinf.netanalyzer.data.filter.ComplexParamFilter;
 import de.mpg.mpi_inf.bioinf.netanalyzer.data.filter.Points2DFilter;
 import de.mpg.mpi_inf.bioinf.netanalyzer.data.settings.Points2DGroup;
-import de.mpg.mpi_inf.bioinf.netanalyzer.ui.SpringUtilities;
-import de.mpg.mpi_inf.bioinf.netanalyzer.ui.Utils;
 
 /**
- * Dialog for creating {@link de.mpg.mpi_inf.bioinf.netanalyzer.data.filter.Points2DFilter} based on user's
- * input.
+ * Dialog for creating {@link de.mpg.mpi_inf.bioinf.netanalyzer.data.filter.Points2DFilter} based on user's input.
  * 
  * @author Yassen Assenov
  */
+@SuppressWarnings("serial")
 public class Points2DFilterDialog extends ComplexParamFilterDialog implements PropertyChangeListener {
-
-	private static final long serialVersionUID = 4746985046081748678L;
 
 	/**
 	 * Number formatting style used in the text fields.
 	 */
 	private static final NumberFormat formatter = NumberFormat.getInstance(Locale.US);
 	
+	/** Text field for typing in the value for minimum x. */
+	private JFormattedTextField minTextField;
+	/** Text field for typing in the value for maximum x. */
+	private JFormattedTextField maxTextField;
+
+	/**
+	 * Range of allowed values to be typed for X. The element at index <code>0</code> in this array is the
+	 * minimum, and the element at index <code>1</code> - the maximum.
+	 */
+	private double[] rangeX;
+
+	/** New value to be used for minimum x, as typed by the user. */
+	private double xMin;
+	/** New value to be used for maximum x, as typed by the user. */
+	private double xMax;
+	
 	/**
 	 * Initializes a new instance of <code>Points2DFilterDialog</code> based on the given
 	 * <code>Points2D</code> instance.
 	 * 
-	 * @param aOwner The <code>Dialog</code> from which this dialog is displayed.
-	 * @param aTitle Title of the dialog.
-	 * @param aPoints Data points, based on which the ranges for the minimum and maximum coordinate values are
+	 * @param owner The <code>Window</code> from which this dialog is displayed.
+	 * @param title Title of the dialog.
+	 * @param points Data points, based on which the ranges for the minimum and maximum coordinate values are
 	 *        to be chosen.
-	 * @param aSettings Visual settings for <code>aPoints</code>.
+	 * @param settings Visual settings for <code>points</code>.
 	 */
-	public Points2DFilterDialog(Dialog aOwner, String aTitle, Points2D aPoints, Points2DGroup aSettings) {
-		super(aOwner, aTitle);
+	public Points2DFilterDialog(Window owner, String title, Points2D points, Points2DGroup settings) {
+		super(owner, title);
 
-		populate(aPoints, aSettings);
+		populate(points, settings);
 		pack();
 		setResizable(false);
-		setLocationRelativeTo(aOwner);
+		setLocationRelativeTo(owner);
 	}
 
 	@Override
@@ -89,8 +106,8 @@ public class Points2DFilterDialog extends ComplexParamFilterDialog implements Pr
 	@Override
 	protected ComplexParamFilter createFilter() {
 		try {
-			final double xmin = formatter.parse(txfXMin.getText()).doubleValue();
-			final double xmax = formatter.parse(txfXMax.getText()).doubleValue();
+			final double xmin = formatter.parse(minTextField.getText()).doubleValue();
+			final double xmax = formatter.parse(maxTextField.getText()).doubleValue();
 			return new Points2DFilter(xmin, xmax);
 		} catch (ParseException ex) {
 			throw new InnerException(ex);
@@ -98,38 +115,59 @@ public class Points2DFilterDialog extends ComplexParamFilterDialog implements Pr
 	}
 
 	/**
-	 * 
-	 * @param aPoints Data points, based on which the ranges for the minimum and maximum coordinate values are
+	 * @param points Data points, based on which the ranges for the minimum and maximum coordinate values are
 	 *        to be chosen.
-	 * @param aSettings Visual settings for <code>aPoints</code>.
+	 * @param settings Visual settings for <code>points</code>.
 	 */
-	private void populate(Points2D aPoints, Points2DGroup aSettings) {
-		centralPane.setLayout(new SpringLayout());
-		rangeX = aPoints.getRangeX();
+	private void populate(Points2D points, Points2DGroup settings) {
+		rangeX = points.getRangeX();
 
 		formatter.setParseIntegerOnly(false);
 		formatter.setMaximumFractionDigits(12);
 
 		// Add a text field for minimum x
-		centralPane.add(new JLabel(aSettings.filter.getMinXLabel() + ":", SwingConstants.RIGHT));
-		centralPane.add(txfXMin = new JFormattedTextField(formatter));
-		final Dimension size = txfXMin.getPreferredSize();
-		size.width = 70;
-		txfXMin.setPreferredSize(size);
-		txfXMin.setHorizontalAlignment(JFormattedTextField.RIGHT);
-		txfXMin.setValue(new Double(xMin = rangeX[0]));
-		txfXMin.addPropertyChangeListener("value", this);
+		final JLabel minLabel = new JLabel(settings.filter.getMinXLabel() + ":", SwingConstants.RIGHT);
+		minTextField = new JFormattedTextField(formatter);
+		minTextField.setColumns(9);
+		minTextField.setHorizontalAlignment(JFormattedTextField.RIGHT);
+		minTextField.setValue(new Double(xMin = rangeX[0]));
+		minTextField.addPropertyChangeListener("value", this);
 
 		// Add a text field for maximum x
-		centralPane.add(new JLabel(aSettings.filter.getMaxXLabel() + ":", SwingConstants.RIGHT));
-		centralPane.add(txfXMax = new JFormattedTextField(formatter));
-		txfXMax.setPreferredSize(size);
-		txfXMax.setHorizontalAlignment(JFormattedTextField.RIGHT);
-		txfXMax.setValue(new Double(xMax = rangeX[1]));
-		txfXMax.addPropertyChangeListener("value", this);
+		final JLabel maxLabel = new JLabel(settings.filter.getMaxXLabel() + ":", SwingConstants.RIGHT);
+		maxTextField = new JFormattedTextField(formatter);
+		maxTextField.setColumns(9);
+		maxTextField.setHorizontalAlignment(JFormattedTextField.RIGHT);
+		maxTextField.setValue(new Double(xMax = rangeX[1]));
+		maxTextField.addPropertyChangeListener("value", this);
 
-		final int gap = Utils.BORDER_SIZE / 2;
-		SpringUtilities.makeCompactGrid(centralPane, 2, 2, 0, 0, gap, gap);
+		final GroupLayout layout = new GroupLayout(centralPane);
+		centralPane.setLayout(layout);
+		layout.setAutoCreateContainerGaps(true);
+		layout.setAutoCreateGaps(true);
+		
+		layout.setHorizontalGroup(layout.createSequentialGroup()
+				.addGap(0, 0, Short.MAX_VALUE)
+				.addGroup(layout.createParallelGroup(TRAILING)
+						.addComponent(minLabel, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+						.addComponent(maxLabel, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+				)
+				.addGroup(layout.createParallelGroup(LEADING)
+						.addComponent(minTextField, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE)
+						.addComponent(maxTextField, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE)
+				)
+				.addGap(0, 0, Short.MAX_VALUE)
+		);
+		layout.setVerticalGroup(layout.createSequentialGroup()
+				.addGroup(layout.createParallelGroup(CENTER, false)
+						.addComponent(minLabel, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+						.addComponent(minTextField, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+				)
+				.addGroup(layout.createParallelGroup(CENTER, false)
+						.addComponent(maxLabel, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+						.addComponent(maxTextField, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+				)
+		);
 	}
 
 	/**
@@ -137,51 +175,25 @@ public class Points2DFilterDialog extends ComplexParamFilterDialog implements Pr
 	 */
 	private void updateStatus() {
 		try {
-			xMin = formatter.parse(txfXMin.getText()).doubleValue();
+			xMin = formatter.parse(minTextField.getText()).doubleValue();
 			if (xMin < rangeX[0] || xMin > rangeX[1]) {
 				xMin = Math.min(Math.max(xMin, rangeX[0]), rangeX[1]);
-				txfXMin.setText(String.valueOf(xMin));
-				txfXMin.commitEdit();
+				minTextField.setText(String.valueOf(xMin));
+				minTextField.commitEdit();
 			}
 		} catch (Exception ex) {
 			xMin = Double.MAX_VALUE;
 		}
 		try {
-			xMax = formatter.parse(txfXMax.getText()).doubleValue();
+			xMax = formatter.parse(maxTextField.getText()).doubleValue();
 			if (xMax < rangeX[0] || xMax > rangeX[1]) {
 				xMax = Math.min(Math.max(xMax, rangeX[0]), rangeX[1]);
-				txfXMax.setText(String.valueOf(xMax));
-				txfXMax.commitEdit();
+				maxTextField.setText(String.valueOf(xMax));
+				maxTextField.commitEdit();
 			}
 		} catch (Exception ex) {
 			xMax = Double.MIN_VALUE;
 		}
 		btnOK.setEnabled(xMin <= xMax);
 	}
-
-	/**
-	 * Text field for typing in the value for minimum x.
-	 */
-	private JFormattedTextField txfXMin;
-
-	/**
-	 * Text field for typing in the value for maximum x.
-	 */
-	private JFormattedTextField txfXMax;
-
-	/**
-	 * Range of allowed values to be typed for X. The element at index <code>0</code> in this array is the
-	 * minimum, and the element at index <code>1</code> - the maximum.
-	 */
-	private double[] rangeX;
-
-	/**
-	 * New value to be used for minimum x, as typed by the user.
-	 */
-	private double xMin;
-
-	/**
-	 * New value to be used for maximum x, as typed by the user.
-	 */
-	private double xMax;
 }

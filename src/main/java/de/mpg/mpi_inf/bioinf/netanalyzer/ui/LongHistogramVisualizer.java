@@ -59,6 +59,11 @@ import de.mpg.mpi_inf.bioinf.netanalyzer.ui.charts.JFreeChartConn;
  */
 public class LongHistogramVisualizer extends ComplexParamVisualizer {
 
+	/** Integer histogram instance to be visualized. */
+	private LongHistogram param;
+	/** Visual settings for the long histogram instance. */
+	private LongHistogramGroup settings;
+	
 	/**
 	 * Initializes a new instance of <code>LongHistogramVisualizer</code>.
 	 * 
@@ -218,14 +223,4 @@ public class LongHistogramVisualizer extends ComplexParamVisualizer {
 		
 		return choiceCombo;
 	}
-
-	/**
-	 * Integer histogram instance to be visualized.
-	 */
-	private LongHistogram param;
-
-	/**
-	 * Visual settings for the long histogram instance.
-	 */
-	private LongHistogramGroup settings;
 }

@@ -240,7 +240,7 @@ public abstract class Messages {
 
 	public static String SM_FILEEXISTS = "<html>The specified file already exists.<br>Overwrite?";
 
-	public static String SM_FITLINE = "<html>A line in the form y = a + b x was fitted.</html>";
+	public static String SM_FITLINE = "<html>A line in the form <b><font face=Monospaced>y = a + bx</font></b> was fitted.</html>";
 
 	public static String SM_FITLINEERROR = "Could not fit line to the points.";
 
@@ -248,7 +248,7 @@ public abstract class Messages {
 
 	public static String SM_FITNONPOSITIVE = "<html>Some data points have non-positive coordinates.<br>Only points with positive coordinates are included in the fit.</html>";
 
-	public static String SM_FITPL = "<html>A power law of the form y = ax<sup>b</sup> was fitted.</html>";
+	public static String SM_FITPL = "<html>A power law of the form <b><font face=Monospaced>y = ax<sup>b</sup></font></b> was fitted.</html>";
 
 	public static String SM_FITPLERROR = "Could not fit power law to the points.";
 

@@ -26,21 +26,25 @@ package de.mpg.mpi_inf.bioinf.netanalyzer.ui.filter;
  * #L%
  */
 
-import java.awt.Dialog;
+import static javax.swing.GroupLayout.DEFAULT_SIZE;
+import static javax.swing.GroupLayout.PREFERRED_SIZE;
+import static javax.swing.GroupLayout.Alignment.CENTER;
+import static javax.swing.GroupLayout.Alignment.LEADING;
+import static javax.swing.GroupLayout.Alignment.TRAILING;
 
+import java.awt.Window;
+
+import javax.swing.GroupLayout;
 import javax.swing.JLabel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.SpringLayout;
 import javax.swing.SwingConstants;
-
 
 import de.mpg.mpi_inf.bioinf.netanalyzer.data.LongHistogram;
 import de.mpg.mpi_inf.bioinf.netanalyzer.data.filter.ComplexParamFilter;
 import de.mpg.mpi_inf.bioinf.netanalyzer.data.filter.LongHistogramFilter;
 import de.mpg.mpi_inf.bioinf.netanalyzer.data.settings.LongHistogramGroup;
-import de.mpg.mpi_inf.bioinf.netanalyzer.ui.SpringUtilities;
 import de.mpg.mpi_inf.bioinf.netanalyzer.ui.Utils;
 
 /**
@@ -50,77 +54,89 @@ import de.mpg.mpi_inf.bioinf.netanalyzer.ui.Utils;
  * @author Yassen Assenov
  * @author Sven-Eric Schelhorn
  */
+@SuppressWarnings("serial")
 public class LongHistogramFilterDialog extends ComplexParamFilterDialog {
 
+	/** Spinner to choose the maximum observation value to display. */
+	private JSpinner minSpinner;
+	/** Spinner to choose the maximum observation value to display. */
+	private JSpinner maxSpinner;
+	
 	/**
 	 * Initializes a new instance of <code>LongHistogramFilterDialog</code> based on the given
 	 * IntHistgoram instance.
 	 * 
-	 * @param aOwner The <code>Dialog</code> from which this dialog is displayed.
-	 * @param aTitle Title of the dialog.
-	 * @param aHistogram LongHistogram instance, based on which the ranges for the minimum and maximum
+	 * @param owner The <code>Dialog</code> from which this dialog is displayed.
+	 * @param title Title of the dialog.
+	 * @param histogram LongHistogram instance, based on which the ranges for the minimum and maximum
 	 *        degrees are to be chosen.
-	 * @param aSettings Visual settings for <code>aHistogram</code>.
+	 * @param settings Visual settings for <code>histogram</code>.
 	 */
-	public LongHistogramFilterDialog(Dialog aOwner, String aTitle, LongHistogram aHistogram,
-		LongHistogramGroup aSettings) {
-		super(aOwner, aTitle);
+	public LongHistogramFilterDialog(Window owner, String title, LongHistogram histogram, LongHistogramGroup settings) {
+		super(owner, title);
 
-		populate(aHistogram, aSettings);
+		populate(histogram, settings);
 		pack();
 		setResizable(false);
-		setLocationRelativeTo(aOwner);
+		setLocationRelativeTo(owner);
 	}
 
 	/**
-	 * Creates and initializes a filter instance based on user's choice for minimum and maximum
-	 * degree.
+	 * Creates and initializes a filter instance based on user's choice for minimum and maximum degree.
 	 * 
-	 * @return Instance of <code>LongHistogramFilter</code> reflecting the user's filtering
-	 *         criteria.
+	 * @return Instance of <code>LongHistogramFilter</code> reflecting the user's filtering criteria.
 	 */
 	@Override
 	protected ComplexParamFilter createFilter() {
-		return new LongHistogramFilter(Utils.getSpinnerInt(spnMin), Utils.getSpinnerInt(spnMax));
+		return new LongHistogramFilter(Utils.getSpinnerInt(minSpinner), Utils.getSpinnerInt(maxSpinner));
 	}
-
-	/**
-	 * Unique ID for this version of this class. It is used in serialization.
-	 */
-	private static final long serialVersionUID = 1556691517305385646L;
 
 	/**
 	 * Creates and lays out the two spinner controls for choosing minimum and maximum degree.
 	 * 
-	 * @param aHistogram Histogram instance, based on which the ranges for the minimum and maximum
+	 * @param histogram Histogram instance, based on which the ranges for the minimum and maximum
 	 *        degrees are to be chosen.
-	 * @param aSettings Visual settings for <code>aHistogram</code>.
+	 * @param settings Visual settings for <code>histogram</code>.
 	 */
-	private void populate(LongHistogram aHistogram, LongHistogramGroup aSettings) {
-		centralPane.setLayout(new SpringLayout());
-		long[] range = aHistogram.getObservedRange();
+	private void populate(LongHistogram histogram, LongHistogramGroup settings) {
+		final long[] range = histogram.getObservedRange();
 
 		// Add a spinner for minimum observation
-		centralPane.add(new JLabel(aSettings.filter.getMinObservationLabel() + ":", SwingConstants.RIGHT));
-		SpinnerModel minSettings = new SpinnerNumberModel(range[0], range[0], range[1], 1);
-		centralPane.add(spnMin = new JSpinner(minSettings));
+		final JLabel minLabel = new JLabel(settings.filter.getMinObservationLabel() + ":", SwingConstants.RIGHT);
+		final SpinnerModel minSettings = new SpinnerNumberModel(range[0], range[0], range[1], 1);
+		minSpinner = new JSpinner(minSettings);
 
 		// Add a spinner for maximum observation
-		centralPane.add(new JLabel(aSettings.filter.getMaxObservationLabel() + ":", SwingConstants.RIGHT));
-		SpinnerModel maxSettings = new SpinnerNumberModel(range[1], range[0], range[1], 1);
-		centralPane.add(spnMax = new JSpinner(maxSettings));
+		final JLabel maxLabel = new JLabel(settings.filter.getMaxObservationLabel() + ":", SwingConstants.RIGHT);
+		final SpinnerModel maxSettings = new SpinnerNumberModel(range[1], range[0], range[1], 1);
+		maxSpinner = new JSpinner(maxSettings);
 
-		final int gap = Utils.BORDER_SIZE / 2;
-		SpringUtilities.makeCompactGrid(centralPane, 2, 2, 0, 0, gap, gap);
+		final GroupLayout layout = new GroupLayout(centralPane);
+		centralPane.setLayout(layout);
+		layout.setAutoCreateContainerGaps(true);
+		layout.setAutoCreateGaps(true);
+		
+		layout.setHorizontalGroup(layout.createSequentialGroup()
+				.addGap(0, 0, Short.MAX_VALUE)
+				.addGroup(layout.createParallelGroup(TRAILING)
+						.addComponent(minLabel, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+						.addComponent(maxLabel, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+				)
+				.addGroup(layout.createParallelGroup(LEADING)
+						.addComponent(minSpinner, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+						.addComponent(maxSpinner, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+				)
+				.addGap(0, 0, Short.MAX_VALUE)
+		);
+		layout.setVerticalGroup(layout.createSequentialGroup()
+				.addGroup(layout.createParallelGroup(CENTER, false)
+						.addComponent(minLabel, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+						.addComponent(minSpinner, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+				)
+				.addGroup(layout.createParallelGroup(CENTER, false)
+						.addComponent(maxLabel, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+						.addComponent(maxSpinner, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+				)
+		);
 	}
-
-	/**
-	 * Spinner to choose the maximum observation value to display.
-	 */
-	private JSpinner spnMin;
-
-	/**
-	 * Spinner to choose the maximum observation value to display.
-	 */
-	private JSpinner spnMax;
 }

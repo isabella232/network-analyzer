@@ -137,32 +137,17 @@ public class LeastSquaresPowerLawDecorator extends TwoCoefsDecorator {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.mpg.mpi_inf.bioinf.netanalyzer.dec.Decorator#undecorate(org.jfree.chart.JFreeChart)
-	 */
 	@Override
 	public void undecorate(JFreeChart aChart) {
 		clearDataset(aChart, seriesName);
 		coefs = null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.mpg.mpi_inf.bioinf.netanalyzer.dec.Decorator#getButtonLabel()
-	 */
 	@Override
 	public String getButtonLabel() {
 		return isActive() ? Messages.DI_REMOVEPL : Messages.DI_FITPL;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.mpg.mpi_inf.bioinf.netanalyzer.dec.Decorator#getButtonToolTip()
-	 */
 	@Override
 	public String getButtonToolTip() {
 		return isActive() ? null : Messages.TT_FITPL;

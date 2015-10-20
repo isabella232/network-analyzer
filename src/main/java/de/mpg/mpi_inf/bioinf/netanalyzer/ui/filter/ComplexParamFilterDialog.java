@@ -26,8 +26,10 @@ package de.mpg.mpi_inf.bioinf.netanalyzer.ui.filter;
  * #L%
  */
 
-import java.awt.Dialog;
-import java.awt.FlowLayout;
+import static javax.swing.GroupLayout.DEFAULT_SIZE;
+import static javax.swing.GroupLayout.PREFERRED_SIZE;
+
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
@@ -48,34 +50,24 @@ import de.mpg.mpi_inf.bioinf.netanalyzer.ui.Utils;
  * 
  * @author Yassen Assenov
  */
+@SuppressWarnings("serial")
 public abstract class ComplexParamFilterDialog extends JDialog {
 
-	/**
-	 * Displays the dialog and initializes a filter based on user's input.
-	 * 
-	 * @return Instance of a class extending <code>ComplexParamFilter</code> reflecting the user's
-	 *         filtering criteria; <code>null</code> if the user has pressed the
-	 *         &quot;Cancel&quot; button.
-	 */
-	public ComplexParamFilter showDialog() {
-		setVisible(true);
-		
-		if (btnOK == null) {
-			// User has pressed OK
-			return createFilter();
-		}
-		// User has pressed Cancel
-		return null;
-	}
-
+	/** &quot;OK&quot; button. */
+	protected JButton btnOK;
+	/** &quot;Cancel&quot; button. */
+	protected JButton btnCancel;
+	/** Panel in the dialog that contains filter-specific controls. */
+	protected JPanel centralPane;
+	
 	/**
 	 * Initializes the common controls of <code>ComplexParamFilterDialog</code>.
 	 * 
-	 * @param aOwner The <code>Dialog</code> from which this dialog is displayed.
-	 * @param aTitle Dialog's title.
+	 * @param owner The <code>Window</code> from which this dialog is displayed.
+	 * @param title Dialog's title.
 	 */
-	protected ComplexParamFilterDialog(Dialog aOwner, String aTitle) {
-		super(aOwner, aTitle, true);
+	protected ComplexParamFilterDialog(Window owner, String title) {
+		super(owner, title, ModalityType.APPLICATION_MODAL);
 		initControls();
 	}
 
@@ -86,27 +78,22 @@ public abstract class ComplexParamFilterDialog extends JDialog {
 	 *         filtering criteria.
 	 */
 	protected abstract ComplexParamFilter createFilter();
-
+	
 	/**
-	 * &quot;OK&quot; button.
+	 * Displays the dialog and initializes a filter based on user's input.
+	 * 
+	 * @return Instance of a class extending <code>ComplexParamFilter</code> reflecting the user's
+	 *         filtering criteria; <code>null</code> if the user has pressed the &quot;Cancel&quot; button.
 	 */
-	protected JButton btnOK;
-
-	/**
-	 * &quot;Cancel&quot; button.
-	 */
-	protected JButton btnCancel;
-
-	/**
-	 * Panel in the dialog that contains filter-specific controls.
-	 */
-	protected JPanel centralPane;
-
-	/**
-	 * Unique ID for this version of this class. It is used in serialization.
-	 */
-	private static final long serialVersionUID = -5390738966565631892L;
-
+	public ComplexParamFilter showDialog() {
+		setVisible(true);
+		
+		if (btnOK == null) // User has pressed OK
+			return createFilter();
+		
+		return null; // User has pressed Cancel
+	}
+	
 	/**
 	 * Creates and lays out the common controls for this dialog.
 	 * <p>
@@ -114,9 +101,9 @@ public abstract class ComplexParamFilterDialog extends JDialog {
 	 * &quot;OK&quot; and &quot;Cancel&quot; buttons.
 	 * </p>
 	 */
-	@SuppressWarnings("serial")
 	private void initControls() {
-		centralPane = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+		centralPane = new JPanel();
+		centralPane.setBorder(LookAndFeelUtil.createPanelBorder());
 
 		// Add OK and Cancel Buttons
 		btnOK = Utils.createButton(new AbstractAction(Messages.DI_OK) {
@@ -142,13 +129,13 @@ public abstract class ComplexParamFilterDialog extends JDialog {
 		layout.setAutoCreateContainerGaps(true);
 		layout.setAutoCreateGaps(true);
 		
-		layout.setHorizontalGroup(layout.createParallelGroup(Alignment.CENTER, true)
-				.addComponent(centralPane)
-				.addComponent(buttonsPanel)
+		layout.setHorizontalGroup(layout.createParallelGroup(Alignment.CENTER)
+				.addComponent(centralPane, DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
+				.addComponent(buttonsPanel, DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
 		);
 		layout.setVerticalGroup(layout.createSequentialGroup()
-				.addComponent(centralPane)
-				.addComponent(buttonsPanel)
+				.addComponent(centralPane, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE)
+				.addComponent(buttonsPanel, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE)
 		);
 		
 		setContentPane(contentPane);

@@ -1,5 +1,11 @@
 package de.mpg.mpi_inf.bioinf.netanalyzer.ui.dec;
 
+import static javax.swing.GroupLayout.DEFAULT_SIZE;
+import static javax.swing.GroupLayout.PREFERRED_SIZE;
+import static javax.swing.GroupLayout.Alignment.CENTER;
+import static javax.swing.GroupLayout.Alignment.LEADING;
+import static javax.swing.GroupLayout.Alignment.TRAILING;
+
 /*
  * #%L
  * Cytoscape NetworkAnalyzer Impl (network-analyzer-impl)
@@ -29,16 +35,13 @@ package de.mpg.mpi_inf.bioinf.netanalyzer.ui.dec;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Frame;
-import java.awt.GridLayout;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
-import java.awt.geom.Point2D;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 import javax.swing.AbstractAction;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.ParallelGroup;
+import javax.swing.GroupLayout.SequentialGroup;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -58,103 +61,34 @@ import de.mpg.mpi_inf.bioinf.netanalyzer.ui.Utils;
  * 
  * @author Yassen Assenov
  */
+@SuppressWarnings("serial")
 public class FittingReportDialog extends JDialog {
 
+	@SuppressWarnings("unused")
 	private static final Logger logger = LoggerFactory.getLogger(FittingReportDialog.class);
-	/**
-	 * Initializes the common controls of <code>FittingReportDialog</code>.
-	 * 
-	 * @param aOwner The <code>Frame</code> from which this dialog is displayed.
-	 * @param aTitle Dialog's title.
-	 * @param aData Fit data to be displayed, encapsulated in a <code>FitData</code> instance.
-	 */
-	public FittingReportDialog(Frame aOwner, String aTitle, FitData aData) {
-		super(aOwner, aTitle, true);
-		initControls(aData);
-		setLocationRelativeTo(aOwner);
-	}
+	
+	private JButton btnClose;
 
 	/**
 	 * Initializes the common controls of <code>FittingReportDialog</code>.
 	 * 
-	 * @param aOwner The <code>Dialog</code> from which this dialog is displayed.
-	 * @param aTitle Dialog's title.
-	 * @param aData Fit data to be displayed, encapsulated in a <code>FitData</code> instance.
+	 * @param owner The <code>Window</code> from which this dialog is displayed.
+	 * @param title Dialog's title.
+	 * @param data Fit data to be displayed, encapsulated in a <code>FitData</code> instance.
 	 */
-	public FittingReportDialog(Window aOwner, String aTitle, FitData aData) {
-		super(aOwner, aTitle);
-		initControls(aData);
-		setLocationRelativeTo(aOwner);
+	public FittingReportDialog(Window owner, String title, FitData data) {
+		super(owner, title, ModalityType.APPLICATION_MODAL);
+		initControls(data);
+		setLocationRelativeTo(owner);
+		setResizable(false);
 	}
 
-	/**
-	 * Unique ID for this version of this class. It is used in serialization.
-	 */
-	private static final long serialVersionUID = 1519314486190160307L;
-
-	/**
-	 * Creates and lays out the controls inside this dialog.
-	 * <p>
-	 * This method is called upon initialization only.
-	 * </p>
-	 * 
-	 * @param aData Fit data to be displayed.
-	 */
-	@SuppressWarnings("serial")
-	private void initControls(FitData aData) {
-		final int bs = Utils.BORDER_SIZE;
-		final JPanel contentPane = new JPanel(new BorderLayout(0, bs));
-		Utils.setStandardBorder(contentPane);
-		final Box boxData = new Box(BoxLayout.PAGE_AXIS);
-		contentPane.add(boxData, BorderLayout.CENTER);
-
+	private void initControls(final FitData data) {
 		// Display informative message to the user
-		contentPane.add(new JLabel(aData.getMessage(), SwingConstants.CENTER), BorderLayout.NORTH);
-
-		// Display coefficients of the fitted function
-		final Point2D.Double coefs = aData.getCoefs();
-		final JTextField txfA = new JTextField(Utils.doubleToString(coefs.x, 6, 3));
-		txfA.setEditable(false);
-		txfA.setColumns(9);
-		final JTextField txfB = new JTextField(Utils.doubleToString(coefs.y, 6, 3));
-		txfB.setEditable(false);
-		txfB.setColumns(9);
-		final Box boxCoefs = new Box(BoxLayout.LINE_AXIS);
-		boxCoefs.add(new JLabel("a:"));
-		boxCoefs.add(txfA);
-		boxCoefs.add(Box.createHorizontalStrut(bs * 2));
-		boxCoefs.add(new JLabel("b:"));
-		boxCoefs.add(txfB);
-		boxCoefs.add(Box.createHorizontalGlue());
-		boxCoefs.setAlignmentX(Component.CENTER_ALIGNMENT);
-		boxData.add(boxCoefs);
-		boxData.add(Box.createVerticalStrut(bs * 2));
-
-		// Display goodness fit measures
-		final JPanel panMeasures = new JPanel(new GridLayout(0, 2, bs, bs));
-		final Double corr = aData.getCorrelation();
-		if (corr != null) {
-			createReport(panMeasures, Messages.DI_CORR, corr);
-		}
-		final Double rSquared = aData.getRSquared();
-		if (rSquared != null) {
-			createReport(panMeasures, Messages.DI_RSQUARED, rSquared);
-		}
-		if (corr != null || rSquared != null) {
-			panMeasures.setAlignmentX(Component.CENTER_ALIGNMENT);
-			boxData.add(panMeasures);
-			boxData.add(Box.createVerticalStrut(bs * 2));
-		}
-
-		// Display a note
-		final String note = aData.getNote();
-		if (note != null && note.length() > 0) {
-			final JLabel label = new JLabel("<html><b>Note:</b> " + note + "</html>");
-			label.setAlignmentX(Component.CENTER_ALIGNMENT);
-			boxData.add(label);
-			boxData.add(Box.createVerticalStrut(bs * 2));
-		}
-
+		final JLabel infoLabel = new JLabel(data.getMessage(), SwingConstants.CENTER);
+		
+		final JPanel formPanel = createFormPanel(data);
+		
 		// Add "Close" and "Help" buttons
 		btnClose = Utils.createButton(new AbstractAction(Messages.DI_CLOSE) {
 			@Override
@@ -164,37 +98,122 @@ public class FittingReportDialog extends JDialog {
 			}
 		}, null);
 		
-		try {
-			helpURL = new URL(aData.getHelpURL());
-		} catch (MalformedURLException e) {
-			logger.warn("bad url: " + aData.getHelpURL(), e);
-		}
-		
 		final JPanel bottomPanel = LookAndFeelUtil.createOkCancelPanel(null, btnClose);
-		contentPane.add(bottomPanel, BorderLayout.SOUTH);
-
-		setContentPane(contentPane);
-		pack();
+		
+		final GroupLayout layout = new GroupLayout(getContentPane());
+		getContentPane().setLayout(layout);
+		layout.setAutoCreateContainerGaps(true);
+		layout.setAutoCreateGaps(true);
+		
+		layout.setHorizontalGroup(layout.createParallelGroup(CENTER, true)
+				.addComponent(infoLabel)
+				.addComponent(formPanel, DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
+				.addComponent(bottomPanel, DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE)
+		);
+		layout.setVerticalGroup(layout.createSequentialGroup()
+				.addComponent(infoLabel)
+				.addComponent(formPanel, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+				.addComponent(bottomPanel, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+		);
 		
 		LookAndFeelUtil.setDefaultOkCancelKeyStrokes(rootPane, btnClose.getAction(), btnClose.getAction());
 		getRootPane().setDefaultButton(btnClose);
+		
+		pack();
+	}
+	
+	private JPanel createFormPanel(final FitData data) {
+		// Display coefficients of the fitted function
+		final JLabel aLabel = new JLabel("a:");
+		final JLabel bLabel = new JLabel("b:");
+		final JTextField aTextField = createTextField(Utils.doubleToString(data.getCoefs().x, 6, 3));
+		final JTextField bTextField = createTextField(Utils.doubleToString(data.getCoefs().y, 6, 3));
+		
+		final JPanel panel = new JPanel();
+		panel.setBorder(LookAndFeelUtil.createPanelBorder());
+		
+		final GroupLayout layout = new GroupLayout(panel);
+		panel.setLayout(layout);
+		layout.setAutoCreateContainerGaps(true);
+		layout.setAutoCreateGaps(true);
+		
+		final ParallelGroup hGroup = layout.createParallelGroup(CENTER, true);
+		final SequentialGroup vGroup = layout.createSequentialGroup();
+		
+		final ParallelGroup labelGroup = layout.createParallelGroup(TRAILING);
+		final ParallelGroup fieldGroup = layout.createParallelGroup(LEADING);
+		
+		layout.setHorizontalGroup(hGroup
+				.addGroup(layout.createSequentialGroup()
+						.addGap(0, 0, Short.MAX_VALUE)
+						.addGroup(labelGroup
+								.addComponent(aLabel, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+								.addComponent(bLabel, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+						)
+						.addGroup(fieldGroup
+								.addComponent(aTextField, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+								.addComponent(bTextField, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+						)
+						.addGap(0, 0, Short.MAX_VALUE)
+				)
+		);
+		layout.setVerticalGroup(vGroup
+				.addGroup(layout.createParallelGroup(CENTER, false)
+						.addComponent(aLabel, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+						.addComponent(aTextField, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+				)
+				.addGroup(layout.createParallelGroup(CENTER, false)
+						.addComponent(bLabel, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+						.addComponent(bTextField, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+				)
+		);
+		
+		// Display goodness fit measures
+		if (data.getCorrelation() != null || data.getRSquared() != null) {
+			if (data.getCorrelation() != null) {
+				final JLabel label = new JLabel(Messages.DI_CORR, SwingConstants.TRAILING);
+				final JTextField textField = createTextField(Utils.doubleToString(data.getCorrelation(), 6, 3));
+
+				labelGroup.addComponent(label, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE);
+				fieldGroup.addComponent(textField, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE);
+				vGroup.addGroup(layout.createParallelGroup(CENTER, false)
+						.addComponent(label, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+						.addComponent(textField, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE));
+			}
+
+			if (data.getRSquared() != null) {
+				final JLabel label = new JLabel(Messages.DI_RSQUARED, SwingConstants.TRAILING);
+				final JTextField textField = createTextField(Utils.doubleToString(data.getRSquared(), 6, 3));
+
+				labelGroup.addComponent(label, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE);
+				fieldGroup.addComponent(textField, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE);
+				vGroup.addGroup(layout.createParallelGroup(CENTER, false)
+						.addComponent(label, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE)
+						.addComponent(textField, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE));
+			}
+		}
+		
+		// Display a note
+		final String note = data.getNote();
+		
+		if (note != null && !note.trim().isEmpty()) {
+			final JLabel noteLabel = new JLabel("<html><b>Note:</b> " + note + "</html>");
+			noteLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+			
+			hGroup.addComponent(noteLabel, DEFAULT_SIZE, DEFAULT_SIZE, Short.MAX_VALUE);
+			
+			vGroup.addGap(20);
+			vGroup.addComponent(noteLabel, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE);
+		}
+		
+		return panel;
 	}
 
-	private void createReport(JPanel aPanel, String aMessage, Double aValue) {
-		aPanel.add(new JLabel(aMessage, SwingConstants.TRAILING));
-		final JTextField txf = new JTextField(Utils.doubleToString(aValue, 6, 3));
-		txf.setEditable(false);
-		txf.setColumns(9);
-		aPanel.add(txf);
+	private JTextField createTextField(final String value) {
+		final JTextField textField = new JTextField(value, 9);
+		textField.setEditable(false);
+		textField.setHorizontalAlignment(JTextField.RIGHT);
+		
+		return textField;
 	}
-
-	/**
-	 * &quot;OK&quot; button.
-	 */
-	private JButton btnClose;
-
-	/**
-	 * URL to be visited when the user clicks on the &quot;Help&quot; button.
-	 */
-	private URL helpURL;
 }
