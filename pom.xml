@@ -18,7 +18,7 @@
 	<artifactId>network-analyzer</artifactId>
 	<version>3.3.0-SNAPSHOT</version>
 	<packaging>bundle</packaging>
-	<name>Cytoscape NetworkAnalyzer (${project.artifactId})</name>
+	<name>NetworkAnalyzer</name>
 
 	<scm>
 		<connection>scm:git:git://github.com/cytoscape/network-analyzer.git</connection>
