@@ -279,8 +279,7 @@ public abstract class Messages {
 
 	public static String SM_NETWORKEMPTY = "Network contains no nodes.";
 
-	public static String SM_NETMODIFICATION = "<html>Please note that this option effectively modifies the selected network(s)<br>"
-			+ "and the operations performed cannot be undone.</html>";
+	public static String SM_NETMODIFICATION = "<html><b>Note:</b> This operation cannot be undone.</html>";
 
 	public static String SM_NETWORKFILEINVALID = "Network file is invalid.";
 
