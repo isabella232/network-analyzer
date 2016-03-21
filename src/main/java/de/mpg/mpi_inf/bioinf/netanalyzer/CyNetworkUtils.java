@@ -78,7 +78,11 @@ public abstract class CyNetworkUtils {
 							  CyTable table, Set<String> netAnalyzerAttr)
 	{
 		final List<String> visualizeAttr = new ArrayList<String>(computedAttr.size() + 1);
-		for (final CyColumn column : table.getColumns()) {
+		for (final String colName : computedAttr) {
+			CyColumn column = table.getColumn(colName);
+			
+			if (column == null) continue;
+			
 			if (column.getType() == Double.class || column.getType() == Integer.class)
 				visualizeAttr.add(column.getName());
 		}
