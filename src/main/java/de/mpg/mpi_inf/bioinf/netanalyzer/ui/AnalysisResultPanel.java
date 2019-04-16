@@ -38,7 +38,6 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -158,7 +157,7 @@ public class AnalysisResultPanel extends JPanel implements ActionListener, CytoP
 		{
 			cytoPanel.setState(CytoPanelState.FLOAT);
 			JPanel thisPanel = (JPanel)cytoPanel.getThisComponent();
-			JDialog dialog = (JDialog) thisPanel.getTopLevelAncestor();
+			Window dialog = (Window) thisPanel.getTopLevelAncestor();
 			dialog.setSize(DEFAULT_WIDTH,DEFAULT_HEIGHT);
 		}
 	}
@@ -379,7 +378,7 @@ public class AnalysisResultPanel extends JPanel implements ActionListener, CytoP
 			return;
 
 		JPanel thisPanel = (JPanel)cytoPanel.getThisComponent();
-		JDialog dialog = (JDialog) thisPanel.getTopLevelAncestor();
+		Window dialog = (Window) thisPanel.getTopLevelAncestor();
 		dialog.setSize(DEFAULT_WIDTH,DEFAULT_HEIGHT);
 	}
 }
